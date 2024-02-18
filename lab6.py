@@ -1,5 +1,6 @@
 
 from collections import UserDict
+import re
 
 class Field:
     def __init__(self, value):
@@ -13,8 +14,23 @@ class Name(Field):
 		pass
 
 class Phone(Field):
-    def __init__(self, name):
-        pass
+    def __init__(self, in1: str):
+        # Клас Phone:Реалізовано валідацію номера телефону (має бути перевірка на 10 цифр). - це привести до формату +380989456457
+        phone = in1
+        # Видаліть всі символи, крім цифр та '+', з номера телефону
+        pattern = r"[^+1234567890]"
+        replacement = ""
+        phone = re.sub(pattern, replacement, phone)
+        # чи номер починається з '38'
+        if len(phone)<=10 and phone.find("38")==-1:
+            phone = "38"+phone
+        # чи номер починається з '+'
+        if phone.find("+")==-1:
+            phone = "+"+phone
+        self.value = phone
+
+    def __str__(self):
+        return self.value
 
 class Record:
     def __init__(self, name: str):
@@ -23,24 +39,26 @@ class Record:
 
     # додаемо тел
     def add_phone(self, tel: str): 
-        self.phones.append(tel)
+        self.phones.append(Phone(tel))
  
-    def remove_phone(self):
-        pass
-
+    def remove_phone(self, oldtel: str):
+        for i, v in enumerate(self.phones):
+            if v.value == Phone(oldtel).value:
+               del(self.phones[i])
+        
     def edit_phone(self, oldtel: str, newtel: str):
         for i, v in enumerate(self.phones):
-              if v == oldtel:
-                self.phones[i] = newtel
+              if v.value == Phone(oldtel).value:
+                self.phones[i] = Phone(newtel)
 
     def find_phone(self, oldtel: str) -> str:
         for i, v in enumerate(self.phones):
-              if v == oldtel:
+              if v.value == Phone(oldtel).value:
                 return oldtel
         return ""
    
     def __str__(self):
-        return f"Contact name: {self.name.value}, phones: {'; '.join(self.phones)}"
+        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
 
 class AddressBook(UserDict):
     def add_record(self, Rec: Record):
@@ -71,7 +89,10 @@ def main():
     # Створення запису для John
     john_record = Record("John")
     john_record.add_phone("1234567890")
+    john_record.add_phone("123456789")
     john_record.add_phone("5555555555")
+    john_record.add_phone("0000000000")
+    john_record.remove_phone("0000000000")
 
     # Додавання запису John до адресної книги
     book.add_record(john_record)
