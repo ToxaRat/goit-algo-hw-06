@@ -18,15 +18,13 @@ class Phone(Field):
         # Клас Phone:Реалізовано валідацію номера телефону (має бути перевірка на 10 цифр). - це привести до формату +380989456457
         phone = in1
         # Видаліть всі символи, крім цифр та '+', з номера телефону
-        pattern = r"[^+1234567890]"
-        replacement = ""
-        phone = re.sub(pattern, replacement, phone)
-        # чи номер починається з '38'
-        if len(phone)<=10 and phone.find("38")==-1:
-            phone = "38"+phone
-        # чи номер починається з '+'
-        if phone.find("+")==-1:
-            phone = "+"+phone
+        #pattern = r"[^1234567890]"
+        #replacement = ""
+        #phone = re.sub(pattern, replacement, phone)
+        # чи номер не 10 цифр
+        if len(phone)!=10:
+            raise ValueError("Потрібно 10 цифр")
+      
         self.value = phone
 
     def __str__(self):
@@ -51,11 +49,11 @@ class Record:
               if v.value == Phone(oldtel).value:
                 self.phones[i] = Phone(newtel)
 
-    def find_phone(self, oldtel: str) -> str:
-        for i, v in enumerate(self.phones):
-              if v.value == Phone(oldtel).value:
-                return oldtel
-        return ""
+    def find_phone(self, oldtel: str) -> Phone:
+        for el in self.phones:
+            if el.value == oldtel:
+                return el
+        return None
    
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
@@ -64,14 +62,13 @@ class AddressBook(UserDict):
     def add_record(self, Rec: Record):
         self.data[Rec.name] = Rec
 
-    def find(self, name: str):
+    def find(self, name: str) -> Record:
         for n in self.data:
             if n.value == name:
                 print('Find: Запис знайдено: ', name)
-                found_status=True
                 return self.data[n]
         print(f"Find: Запис на імʼя {name} не знайдено.")
-        return Record('')
+        return None
         
     def delete(self, name: str):
         for n in self.data:
@@ -89,7 +86,8 @@ def main():
     # Створення запису для John
     john_record = Record("John")
     john_record.add_phone("1234567890")
-    john_record.add_phone("123456789")
+    # перевірка на 9 цифр
+    #john_record.add_phone("123456789")
     john_record.add_phone("5555555555")
     john_record.add_phone("0000000000")
     john_record.remove_phone("0000000000")
