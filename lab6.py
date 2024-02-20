@@ -17,10 +17,14 @@ class Phone(Field):
     def __init__(self, in1: str):
         # Клас Phone:Реалізовано валідацію номера телефону (має бути перевірка на 10 цифр). - це привести до формату +380989456457
         phone = in1
+        if in1 == None:
+            raise ValueError("Потрібно 10 цифр")
+        if len(phone)!=10:
+            raise ValueError("Потрібно 10 цифр")
         # Видаліть всі символи, крім цифр та '+', з номера телефону
-        #pattern = r"[^1234567890]"
-        #replacement = ""
-        #phone = re.sub(pattern, replacement, phone)
+        pattern = r"[^1234567890]"
+        replacement = ""
+        phone = re.sub(pattern, replacement, phone)
         # чи номер не 10 цифр
         if len(phone)!=10:
             raise ValueError("Потрібно 10 цифр")
@@ -60,23 +64,13 @@ class Record:
 
 class AddressBook(UserDict):
     def add_record(self, Rec: Record):
-        self.data[Rec.name] = Rec
+        self.data[Rec.name.value] = Rec
 
     def find(self, name: str) -> Record:
-        for n in self.data:
-            if n.value == name:
-                print('Find: Запис знайдено: ', name)
-                return self.data[n]
-        print(f"Find: Запис на імʼя {name} не знайдено.")
-        return None
+        return self.data.get(name)
         
     def delete(self, name: str):
-        for n in self.data:
-            if n.value == name:
-                print('Delete: Запис знайдено: ', name)
-                del(self.data[n])
-                return None
-        print(f"Запис на імʼя {name} не знайдено.")
+        self.data.pop(name)
         return None
 
 def main():
@@ -87,8 +81,11 @@ def main():
     john_record = Record("John")
     john_record.add_phone("1234567890")
     # перевірка на 9 цифр
+    #john_record.add_phone(None)
     #john_record.add_phone("123456789")
     john_record.add_phone("5555555555")
+    #john_record.add_phone("s555555555")
+    #john_record.add_phone("s5555555555")
     john_record.add_phone("0000000000")
     john_record.remove_phone("0000000000")
 
@@ -101,24 +98,25 @@ def main():
     book.add_record(jane_record)
     
     # Виведення всіх записів у книзі
-    for name, record in book.data.items():
-        print(record)
+    #for name, record in book.data.items():
+    #    print(record)
 
     # Знаходження та редагування телефону для John
     john = book.find("John")
+    #print("Find.John", john)
     john.edit_phone("1234567890", "1112223333")
-    print(john)  # Виведення: Contact name: John, phones: 1112223333; 5555555555
+    #print(john)  # Виведення: Contact name: John, phones: 1112223333; 5555555555
     
     # Пошук конкретного телефону у записі John
     found_phone = john.find_phone("5555555555")
-    print(f"{john.name}: {found_phone}")  # Виведення: 5555555555
+    #print(f"{john.name}: {found_phone}")  # Виведення: 5555555555
     
     # Видалення запису Jane
     book.delete("Jane") # Виведення: Contact name: John, phones: 1112223333; 5555555555
 
     # Виведення всіх записів у книзі
-    for name, record in book.data.items():
-        print(record)
+    #for name, record in book.data.items():
+    #    print(record)
 
 if __name__ == "__main__":
     main()
